@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Civil Registration System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <style type="text/css">
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    body, html {
+      height: 100%;
+      background-color: #f4f6f9;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Background Page Watermark Repeating Logo Pattern */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('https://dc.crsorgi.gov.in/crs/assets/logo/crs-logo.png');
+      background-repeat: repeat;
+      background-size: 130px 130px;
+      opacity: 0.08;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* Loader Splash Screen Styling */
+    .loader-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      animation: hideLoader 0.4s ease 0.8s forwards;
+    }
+
+    @keyframes hideLoader {
+      0% { opacity: 1; visibility: visible; }
+      100% { opacity: 0; visibility: hidden; pointer-events: none; }
+    }
+
+    .loader-container {
+      position: relative;
+      width: 90px;
+      height: 90px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .loader-logo {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+      z-index: 2;
+    }
+
+    .spinning-ring {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 4px solid #e0e0e0;
+      border-top: 4px solid #1b4f72;
+      border-radius: 50%;
+      animation: spinLoader 0.8s linear infinite;
+      z-index: 1;
+    }
+
+    @keyframes spinLoader {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Fixed Top Header with Vibrant Tricolor Background */
+    .top-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: linear-gradient(90deg, rgba(230, 126, 34, 0.45) 0%, rgba(255, 255, 255, 0.92) 42%, rgba(255, 255, 255, 0.92) 58%, rgba(39, 174, 96, 0.45) 100%), #ffffff;
+      border-bottom: 3px solid #d0d0d0;
+      padding: 6px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      z-index: 1000;
+      height: 65px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-left img.crs-logo-img {
+      height: 42px;
+      width: 42px;
+      object-fit: contain;
+    }
+
+    .header-title h2 {
+      font-size: 13px;
+      color: #000000;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .header-title p {
+      font-size: 7px;
+      color: #111;
+      font-weight: 500;
+      line-height: 1.15;
+      white-space: nowrap;
+    }
+
+    .header-center {
+      display: flex;
+      align-items: center;
+      gap: 45px;
+      position: absolute;
+      left: 52%;
+      transform: translateX(-50%);
+    }
+
+    .header-center img.amrit-img {
+      height: 36px;
+      object-fit: contain;
+    }
+
+    .header-center img.emblem-img {
+      height: 40px;
+      object-fit: contain;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      background: #1a2530;
+      color: #ffffff;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .login-group {
+      display: flex;
+      align-items: center;
+      background: #34495e;
+      border-radius: 20px;
+      padding: 2px;
+      gap: 2px;
+    }
+
+    .lock-btn {
+      background: transparent;
+      color: white;
+      border: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+    }
+
+    .login-btn {
+      background: #2980b9;
+      color: white;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    /* Scrollable Certificate Container with proper bottom spacing */
+    .certificate-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 85px 15px 190px 15px;
+      min-height: 100vh;
+    }
+
+    .certificate-card {
+      background: #ffffff;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.1);
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid #d0d0d0;
+      position: relative;
+    }
+
+    /* Card Inside Watermark */
+    .certificate-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('https://dc.crsorgi.gov.in/crs/assets/logo/crs-logo.png');
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 240px 240px;
+      opacity: 0.12;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .details-table {
+      width: 100%;
+      border-collapse: collapse;
+      position: relative;
+      z-index: 1;
+    }
+
+    .details-table th, .details-table td {
+      padding: 11px 14px;
+      font-size: 12.5px;
+      border-bottom: 1px solid #eee;
+      text-align: left;
+    }
+
+    .details-table th {
+      width: 38%;
+      color: #444;
+      font-weight: 500;
+      background-color: rgba(248, 249, 250, 0.9);
+    }
+
+    .details-table td {
+      width: 62%;
+      color: #222;
+      font-weight: 400;
+      word-break: break-word;
+      background-color: rgba(255, 255, 255, 0.9);
+    }
+
+    /* Fixed Bottom Footer layout */
+    .footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: linear-gradient(135deg, #205c7d 0%, #11384e 100%);
+      color: #ffffff;
+      padding: 8px 15px;
+      text-align: center;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+      z-index: 1000;
+    }
+
+    .footer-logos {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+
+    .footer-logos img {
+      height: 22px;
+      background: #ffffff;
+      padding: 2px 5px;
+      border-radius: 3px;
+      object-fit: contain;
+    }
+
+    .footer-links {
+      font-size: 10px;
+      margin-bottom: 2px;
+      color: #e0f7fa;
+    }
+
+    .footer-links a {
+      color: #ffffff;
+      text-decoration: none;
+      margin: 0 3px;
+    }
+
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+
+    .footer-sublinks {
+      font-size: 9.5px;
+      margin-bottom: 3px;
+      color: #b2ebf2;
+    }
+
+    .footer-sublinks a {
+      color: #ffffff;
+      text-decoration: none;
+      margin: 0 3px;
+    }
+
+    .footer-sublinks a:hover {
+      text-decoration: underline;
+    }
+
+    .footer-info {
+      font-size: 9px;
+      color: #cfd8dc;
+      line-height: 1.3;
+    }
+
+    /* Mobile Responsive Optimizations */
+    @media screen and (max-width: 768px) {
+      .top-header {
+        height: 56px;
+        padding: 4px 10px;
+      }
+      .header-center {
+        display: none;
+      }
+      .header-left img.crs-logo-img {
+        height: 34px;
+        width: 34px;
+      }
+      .header-title h2 {
+        font-size: 10.5px;
+      }
+      .header-title p {
+        font-size: 5.5px;
+      }
+      .icon-btn, .login-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 11px;
+      }
+      .lock-btn {
+        width: 24px;
+        height: 24px;
+        font-size: 11px;
+      }
+      .certificate-container {
+        padding: 70px 10px 185px 10px;
+      }
+      .details-table th, .details-table td {
+        padding: 8px 10px;
+        font-size: 11px;
+      }
+      .footer-logos img {
+        height: 18px;
+      }
+      .footer-links, .footer-sublinks {
+        font-size: 8.5px;
+      }
+      .footer {
+        padding: 6px 8px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Fullscreen Loading Splash Screen with Rotating Logo -->
+  <div id="page-loader" class="loader-overlay">
+    <div class="loader-container">
+      <div class="spinning-ring"></div>
+      <img src="https://i.postimg.cc/mgczJ8hv/0adbbc2674802ea0cfdaf7c82a234546342579dd75b4317cbee5d4f91da27364-0.png" alt="Loading Logo" class="loader-logo">
+    </div>
+  </div>
+  
+  <!-- Fixed Top Header Bar -->
+  <header class="top-header">
+    <div class="header-left">
+      <img src="https://i.postimg.cc/mgczJ8hv/0adbbc2674802ea0cfdaf7c82a234546342579dd75b4317cbee5d4f91da27364-0.png" alt="CRS Logo" class="crs-logo-img">
+      <div class="header-title">
+        <h2>Birth & Death Registration</h2>
+        <p>Office of the Registrar General & Census Commissioner, India<br>भारत के महारुहारजिस्ट्रार एवं जनगणना आयुक्त का कार्यालय</p>
+      </div>
+    </div>
+    
+    <div class="header-center">
+      <img src="https://i.postimg.cc/d1CgfPKN/914a22791ab57f56a93866bb874c8495625379a1ad1faed692850d9e5f93c953-0.png" alt="Amrit Mahotsav" class="amrit-img">
+      <img src="https://i.postimg.cc/7ZydWYH7/263e90415af02b501e6ab9e402f9ff0a2aa6f03749951cb221cff5555678f980-0.png" alt="National Emblem" class="emblem-img">
+    </div>
+
+    <div class="header-right">
+      <button class="icon-btn" title="Dark Mode">🌙</button>
+      <div class="login-group">
+        <button class="lock-btn" title="Secure">🔒</button>
+        <button class="login-btn" title="Login">➔</button>
+      </div>
+      <button class="icon-btn" title="Menu">☰</button>
+    </div>
+  </header>
+
+  <!-- Scrollable Certificate Container -->
+  <main class="certificate-container">
+    <div class="certificate-card">
+      <table class="details-table">
+        <tr>
+          <th>Registration Number</th>
+          <td>B202609015336353016</td>
+        </tr>
+        <tr>
+          <th>NAME</th>
+          <td>MAMINA KHATUN</td>
+        </tr>
+        <tr>
+          <th>GENDER</th>
+          <td>Female</td>
+        </tr>
+        <tr>
+          <th>DOB</th>
+          <td>14-05-2007</td>
+        </tr>
+        <tr>
+          <th>Name Of Mother</th>
+          <td>NAIMA BIBI</td>
+        </tr>
+        <tr>
+          <th>Name Of Father</th>
+          <td>SEKH ILIYAS</td>
+        </tr>
+        <tr>
+          <th>Place of Birth</th>
+          <td>SURI SADAR HOSPITAL</td>
+        </tr>
+        <tr>
+          <th>Registration Date</th>
+          <td>08-01-2021</td>
+        </tr>
+        <tr>
+          <th>Registration Unit Name</th>
+          <td>SURI SADAR HOSPITAL</td>
+        </tr>
+        <tr>
+          <th>Registration Unit Code</th>
+          <td>01533</td>
+        </tr>
+      </table>
+    </div>
+  </main>
+
+  <!-- Fixed Bottom Footer Section -->
+  <footer class="footer">
+    <div class="footer-logos">
+      <img src="https://data.gov.in/sites/all/themes/ogpl/images/logo.png" alt="data.gov.in" onerror="this.style.display='none'">
+      <img src="https://india.gov.in/sites/upload_files/npi/files/logo_i.png" alt="india.gov.in" onerror="this.style.display='none'">
+      <img src="https://www.pmindia.gov.in/wp-content/uploads/2020/03/pmindia-logo.png" alt="PM INDIA" onerror="this.style.display='none'">
+      <img src="https://www.makeinindia.com/images/makeinindia_logo.png" alt="MAKE IN INDIA" onerror="this.style.display='none'">
+      <img src="https://digitalindia.gov.in/writings/uploads/digitalIndiaLogo.png" alt="Digital India" onerror="this.style.display='none'">
+    </div>
+
+    <div class="footer-links">
+      <a href="#">Website Policy</a> | 
+      <a href="#">Mobile App Privacy Policy</a> | 
+      <a href="#">Terms & Conditions</a> | 
+      <a href="#">Accessibility Statement</a> | 
+      <a href="#">Web Information Manager</a>
+    </div>
+
+    <div class="footer-sublinks">
+      <a href="#">Feedback</a> | 
+      <a href="#">Sitemap</a> | 
+      <a href="#">Contact Us</a> | 
+      <a href="#">Vacancies</a> | 
+      <a href="#">Product & Services</a> | 
+      <a href="#">Pricing</a> | 
+      <a href="#">Cancellation Policy</a> | 
+      <a href="#">Grievance Management Policy</a>
+    </div>
+    
+    <div class="footer-info">
+      Last Updated: 30-01-2024 12:16:17<br>
+      Website Developed & Maintained by Office of the Registrar General & Census Commissioner of India, Ministry of Home Affairs<br>
+      © 2026 - The Registrar General & Census Commissioner of India - <span id="live-datetime"></span>
+    </div>
+  </footer>
+
+  <!-- JavaScript for Live Automatic Date & Time -->
+  <script>
+    function updateDateTime() {
+      const now = new Date();
+      const options = { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit', 
+        hour12: true 
+      };
+      const dtElement = document.getElementById('live-datetime');
+      if (dtElement) {
+        dtElement.innerText = now.toLocaleString('en-IN', options);
+      }
+    }
+    
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+
+    // Emergency Fallback to hide loader
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const loader = document.getElementById('page-loader');
+        if (loader) loader.style.display = 'none';
+      }, 1000);
+    });
+  </script>
+
+</body>
+</html>
